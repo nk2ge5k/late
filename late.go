@@ -3,7 +3,6 @@ package late
 import (
 	"errors"
 	"fmt"
-	"strconv"
 
 	"golang.org/x/text/language"
 )
@@ -15,7 +14,18 @@ type Language language.Tag
 // MarshalJSON returns json represetations of the language.
 // Implements json.Marhshaler interface.
 func (l Language) MarshalJSON() ([]byte, error) {
-	return []byte(strconv.Quote(language.Tag(l).String())), nil
+	src, err := language.Tag(l).MarshalText()
+	if err != nil {
+		return nil, fmt.Errorf("marshal text: %w", err)
+	}
+
+	buf := make([]byte, len(src)+2)
+
+	buf[0] = '"'
+	buf[len(buf)-1] = '"'
+	copy(buf[1:], src)
+
+	return buf, nil
 }
 
 // String return string represetation of the language.
