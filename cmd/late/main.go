@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"late"
 	"late/shutdown"
-	"os"
 
 	"github.com/spf13/cobra"
 )

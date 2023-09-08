@@ -22,3 +22,6 @@ go.work
 
 .tmp/
 .venv/
+*.pb.go
+*_grpc.py
+*_pb2.py

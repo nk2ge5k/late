@@ -57,9 +57,9 @@ format-proto: $(BUF) ## Format Protobuf files
 format-yaml: $(YAMLFMT) ## Format YAML files
 	@$(TMP_BIN)/yamlfmt -conf $(ROOT_DIR)/.yamlfmt .
 
-format-python: ## Format Python files
-	@$(PYTHON_VENV_DIR)/bin/isort . 2> /dev/null > /dev/null
-	@$(PYTHON_VENV_DIR)/bin/black . 2> /dev/null > /dev/null
+format-python: $(VENV) ## Format Python files
+	@$(PYTHON_VENV_DIR)/bin/isort .
+	@$(PYTHON_VENV_DIR)/bin/black .
 
 ##################################### LINT #####################################
 
