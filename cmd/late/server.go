@@ -64,7 +64,9 @@ func runServerE(cmd *cobra.Command, args []string) error {
 	}
 	defer listener.Close()
 
-	var service api.ProjectService
+	service := &api.ProjectService{
+		DB: db,
+	}
 
 	srv := grpc.NewServer()
 	srv.RegisterService(&adminv1.ProjectAPI_ServiceDesc, &service)
