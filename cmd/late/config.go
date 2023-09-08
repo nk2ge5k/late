@@ -11,6 +11,10 @@ type Config struct {
 	Postgres struct {
 		URL string `yaml:"url"`
 	} `yaml:"postgres"`
+	GRPC struct {
+		Addr string `yaml:"addr"`
+		Port int    `yaml:"port"`
+	} `yaml:"grpc"`
 }
 
 func LoadConfig(filename string) (cfg Config, err error) {
