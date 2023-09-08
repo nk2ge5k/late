@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.proto.v1;
 
-option go_package = "github.com/nk2ge5k/late/api/proto/v1";
+option go_package = "late/api/proto/v1";
 
 message Project {
   // Uniquie id of the created project.

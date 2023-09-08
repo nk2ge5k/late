@@ -1,5 +1,15 @@
+black>=22.3.0
 grpcio
 grpcio-tools
 grpclib
-black>=22.3.0
 isort>=5.10.1
+jinja2>=3.0.3
+protobuf>=4.21.0
+psycopg2
+python-dateutil
+pyyaml>=5.1
+requests-toolbelt
+voluptuous>=0.12.2
+yandex-taxi-testsuite
+yandex-taxi-testsuite[postgresql-binary]
+yandex-taxi-testsuite[postgresql]
