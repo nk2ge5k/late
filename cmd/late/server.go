@@ -1,16 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net"
 	"os"
 	"os/signal"
-	"strconv"
 
 	"late/api"
 	adminv1 "late/api/proto/v1"
 
+	_ "github.com/lib/pq"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
@@ -47,7 +48,17 @@ func runServerE(cmd *cobra.Command, args []string) error {
 	ctx, cancel := signal.NotifyContext(cmd.Context(), os.Interrupt)
 	defer cancel()
 
-	listener, err := net.Listen("tcp", cfg.GRPC.Addr+":"+strconv.Itoa(cfg.GRPC.Port))
+	db, err := sql.Open("postgres", cfg.Postgres.URL)
+	if err != nil {
+		return fmt.Errorf("could not open postgres: %w", err)
+	}
+	defer db.Close()
+
+	if err = db.PingContext(ctx); err != nil {
+		return fmt.Errorf("could not establish db conn: %w", err)
+	}
+
+	listener, err := net.Listen("tcp", cfg.GRPC.Addr)
 	if err != nil {
 		return fmt.Errorf("could not start listener: %w", err)
 	}

@@ -13,7 +13,6 @@ type Config struct {
 	} `yaml:"postgres"`
 	GRPC struct {
 		Addr string `yaml:"addr"`
-		Port int    `yaml:"port"`
 	} `yaml:"grpc"`
 }
 
