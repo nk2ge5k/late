@@ -27,7 +27,7 @@ func runServerE(cmd *cobra.Command, _ []string) error {
 	ctx, cancel := signal.NotifyContext(cmd.Context(), os.Interrupt)
 	defer cancel()
 
-	listener, err := net.Listen("tcp", "0")
+	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
 		return fmt.Errorf("could not start listener: %w", err)
 	}
