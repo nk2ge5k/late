@@ -21,15 +21,20 @@ message CreateProjectResponse {
 }
 
 message GetProjectRequest {
-  string id = 1;
+  string project_id = 1;
 }
 
 message GetProjectResponse {
   Project project = 1;
 }
 
-message GetProjectsRequest {}
-message GetProjectsResponse {}
+message GetProjectsRequest {
+  repeated string project_ids = 1;
+}
+
+message GetProjectsResponse {
+  repeated Project projects = 1;
+}
 
 service ProjectAPI {
   rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {}

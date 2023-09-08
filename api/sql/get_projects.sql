@@ -2,4 +2,4 @@ SELECT
 	id,
 	name
 FROM late.projects
-WHERE id = $1;
+WHERE id = ANY($1::BIGINT[]);
