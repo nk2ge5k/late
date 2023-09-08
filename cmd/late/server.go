@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 
+	"late/api"
 	adminv1 "late/api/proto/v1"
 
 	"github.com/spf13/cobra"
@@ -32,10 +33,10 @@ func runServerE(cmd *cobra.Command, _ []string) error {
 	}
 	defer listener.Close()
 
-	var service any
+	var service api.ProjectService
 
 	srv := grpc.NewServer()
-	srv.RegisterService(&adminv1.ProjectAPI_ServiceDesc, service)
+	srv.RegisterService(&adminv1.ProjectAPI_ServiceDesc, &service)
 
 	errs := make(chan error, 1)
 
