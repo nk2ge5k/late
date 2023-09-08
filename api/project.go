@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	_ "embed"
+	"fmt"
+	"io"
 
 	v1 "late/api/proto/v1"
 
@@ -11,8 +13,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-//go:embed sql/insert_project.sql
-var insertProjectQuery string
+var (
+	//go:embed sql/insert_project.sql
+	insertProjectQuery string
+	getProjectQuery    string
+)
 
 type ProjectService struct {
 	DB *sql.DB
@@ -37,10 +42,45 @@ func (srv *ProjectService) CreateProject(ctx context.Context, req *v1.CreateProj
 	}, nil
 }
 
-func (srv *ProjectService) GetProject(v1.ProjectAPI_GetProjectServer) error {
-	return status.Errorf(codes.Unimplemented, "method GetProject not implemented")
+func (srv *ProjectService) GetProject(stream v1.ProjectAPI_GetProjectServer) error {
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		project, err := getproject(stream.Context(), srv.DB, req.Id)
+		if err != nil {
+			return status.Errorf(codes.Internal, "could not get project")
+		}
+
+		if project == nil {
+			continue
+		}
+
+		if err = stream.Send(&v1.GetProjectResponse{Project: project}); err != nil {
+			return err
+		}
+	}
 }
 
 func (srv *ProjectService) GetProjects(context.Context, *v1.GetProjectsRequest) (*v1.GetProjectsResponse, error) {
 	return &v1.GetProjectsResponse{}, nil
+}
+
+func getproject(ctx context.Context, db *sql.DB, projectID string) (*v1.Project, error) {
+	row := db.QueryRowContext(ctx, getProjectQuery, projectID)
+	if err := row.Err(); err != nil {
+		return nil, fmt.Errorf("could not query row: %w", err)
+	}
+
+	proj := new(v1.Project)
+	if err := row.Scan(&proj.Id, &proj.Name); err != nil {
+		return nil, fmt.Errorf("could not scan row: %w", err)
+	}
+
+	return proj, nil
 }
