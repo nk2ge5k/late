@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 80
+target-version = ['py311']
+exclude = '^/(\.venv|vendor|generated|build)/.*'
+
+[tool.isort]
+profile = "black"
+extend_skip_glob = [".venv/*", "build/*", "generated/*", "vendor/*"]
+
+[tool.pytest.ini_options]
+addopts = "--log-format=\"%(asctime)s %(levelname)s %(message)s\" --log-date-format=\"%Y-%m-%d %H:%M:%S\" --log-level debug --strict-markers"
+testpaths = [ "tests" ]
+asyncio_mode = "auto"

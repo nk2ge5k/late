@@ -8,7 +8,6 @@ import (
 )
 
 // Language code
-// TODO(nk2ge5k): not sure if it is really necessary to use golang.org/x/text/language
 type Language language.Tag
 
 // MarshalJSON returns json represetations of the language.
@@ -66,8 +65,6 @@ type Request struct {
 	Key string `json:"key"`
 
 	// The name of the keyset where translation key has been stored.
-	// TODO(nk2ge5k): i believe this field should be omitted or hidden for
-	//	public APIs.
 	Keyset string `json:"keyset"`
 
 	// The number of items for plural forms.
@@ -83,7 +80,6 @@ type Translation struct {
 	Metadata any `json:"metadata"`
 
 	// Translated text for the singular form and for every plural form if necessary.
-	// NOTE(nk2ge5k): may be usefull to use array here.
 	Value []string `json:"value"`
 
 	// Code of the language into which text is being translated (BCP 47)
@@ -93,7 +89,6 @@ type Translation struct {
 
 // LangurageConfiguration contains configuration for every supported language.
 type LanguageConfiguration struct {
-	// TODO(nk2ge5k): some fileds here
 }
 
 // LookupFormIndex tries to find index of the plural form based on the language

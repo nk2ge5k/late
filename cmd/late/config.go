@@ -9,11 +9,14 @@ import (
 
 type Config struct {
 	Postgres struct {
-		URL string `yaml:"url"`
-	} `yaml:"postgres"`
+		URI string `yaml:"uri" json:"uri"`
+	} `yaml:"postgres" json:"postgres"`
 	GRPC struct {
-		Addr string `yaml:"addr"`
-	} `yaml:"grpc"`
+		Listen string `json:"listen"`
+	} `yaml:"grpc" json:"grpc"`
+	HTTP struct {
+		Listen string `json:"listen"`
+	} `yaml:"http" json:"http"`
 }
 
 func LoadConfig(filename string) (cfg Config, err error) {

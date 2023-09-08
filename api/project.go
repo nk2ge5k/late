@@ -65,8 +65,8 @@ func (srv *ProjectService) GetProject(stream v1.ProjectAPI_GetProjectServer) err
 
 		response := &v1.GetProjectResponse{Project: projects[0]}
 
-		if err = stream.Send(response); err != nil {
-			return err
+		if serr := stream.Send(response); serr != nil {
+			return serr
 		}
 	}
 }

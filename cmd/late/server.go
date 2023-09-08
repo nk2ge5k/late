@@ -1,19 +1,27 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"late/api"
-	adminv1 "late/api/proto/v1"
+	v1 "late/api/proto/v1"
+	"late/shutdown"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var configfile string
@@ -48,41 +56,72 @@ func runServerE(cmd *cobra.Command, args []string) error {
 	ctx, cancel := signal.NotifyContext(cmd.Context(), os.Interrupt)
 	defer cancel()
 
-	db, err := sql.Open("postgres", cfg.Postgres.URL)
-	if err != nil {
-		return fmt.Errorf("could not open postgres: %w", err)
-	}
-	defer db.Close()
-
-	if err = db.PingContext(ctx); err != nil {
-		return fmt.Errorf("could not establish db conn: %w", err)
-	}
-
-	listener, err := net.Listen("tcp", cfg.GRPC.Addr)
-	if err != nil {
-		return fmt.Errorf("could not start listener: %w", err)
-	}
-	defer listener.Close()
-
-	service := &api.ProjectService{
-		DB: db,
-	}
-
 	srv := grpc.NewServer()
-	srv.RegisterService(&adminv1.ProjectAPI_ServiceDesc, &service)
+	{
+		db, err := sql.Open("postgres", cfg.Postgres.URI)
+		if err != nil {
+			return fmt.Errorf("could not open postgres: %w", err)
+		}
+		defer db.Close()
 
-	errs := make(chan error, 1)
+		if err = db.PingContext(ctx); err != nil {
+			return fmt.Errorf("could not establish db conn: %w", err)
+		}
 
-	go func() {
-		errs <- srv.Serve(listener)
-	}()
-
-	select {
-	case <-ctx.Done():
-		srv.GracefulStop()
-	case err := <-errs:
-		return fmt.Errorf("could not serve gRPC: %w", err)
+		v1.RegisterProjectAPIServer(srv, &api.ProjectService{DB: db})
+		v1.RegisterHealthAPIServer(srv, api.HealthService{})
 	}
 
+	g, gctx := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		shutdown.Handle(srv.GracefulStop)
+
+		ln, err := net.Listen("tcp", cfg.GRPC.Listen)
+		if err != nil {
+			return fmt.Errorf("could not start listener: %w", err)
+		}
+		defer ln.Close()
+
+		slog.Info("Starting GRPC server", slog.String("addr", cfg.GRPC.Listen))
+		if err := srv.Serve(ln); err != nil {
+			return fmt.Errorf("grpc serve: %w", err)
+		}
+		return nil
+	})
+
+	g.Go(func() error {
+		mux := runtime.NewServeMux()
+		rerr := reigisterGRPCGateways(gctx, mux, cfg.GRPC.Listen,
+			v1.RegisterHealthAPIHandlerFromEndpoint)
+		if rerr != nil {
+			return rerr
+		}
+
+		srv := http.Server{
+			Addr:              cfg.HTTP.Listen,
+			Handler:           mux,
+			ReadHeaderTimeout: time.Millisecond,
+		}
+
+		slog.Info("Starting HTTP server", slog.String("addr", cfg.HTTP.Listen))
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("http listen and serve: %w", err)
+		}
+		return nil
+	})
+
+	return g.Wait()
+}
+
+type RegisterFunc func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
+
+func reigisterGRPCGateways(
+	ctx context.Context, mux *runtime.ServeMux, endpoint string, fns ...RegisterFunc) error {
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	for _, fn := range fns {
+		if err := fn(ctx, mux, endpoint, opts); err != nil {
+			return fmt.Errorf("register grpc gateway: %w", err)
+		}
+	}
 	return nil
 }

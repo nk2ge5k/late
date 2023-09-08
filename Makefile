@@ -12,7 +12,7 @@ build: gen ## Build for production
 
 build-test: gen ## Build for local testing
 	@mkdir -p $(ROOT_DIR)/build/development
-	$(GO) build -race -o $(ROOT_DIR)/build/development/late $(ROOT_DIR)/cmd/late
+	$(GO) build -o $(ROOT_DIR)/build/development/late $(ROOT_DIR)/cmd/late
 
 
 ##################################### TEST #####################################
@@ -23,8 +23,8 @@ test: test-go test-python ## Run all tests
 test-go: gen ## Run all unit tests
 	@$(GO) test -v -race .
 
-test-python: gen build-test ## Run all python integration tests
-	@PYTHON=$(VENV_PYTHON) $(ROOT_DIR)/scripts/run-testsuite.sh $(ROOT_DIR)
+test-python: $(VENV) gen build-test ## Run all python integration tests
+	@PYTHON=$(VENV_PYTHON) $(ROOT_DIR)/tests/run-testsuite.sh $(ROOT_DIR)
 
 ################################### GENERATE ###################################
 
@@ -67,7 +67,7 @@ lint: lint-proto lint-go ## Run every available linter
 	@echo ""
 
 lint-go: $(GOLANGCI_LINT) gen ## Run linting on Go files
-	@$(TMP_BIN)/golangci-lint run -c $(ROOT_DIR)/.golangci.yml
+	@$(TMP_BIN)/golangci-lint run -c $(ROOT_DIR)/.golangci.yaml
 
 lint-proto: $(BUF) ## Run linting on Protobuf files
 	@$(TMP_BIN)/buf lint -v --config $(ROOT_DIR)/buf.yaml

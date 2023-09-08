@@ -1,0 +1,4 @@
+grpc:
+  listen: localhost:28080
+http:
+  listen: localhost:28081

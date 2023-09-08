@@ -20,8 +20,11 @@
 # Go workspace file
 go.work
 
+__pycache__
 .tmp/
 .venv/
+build/
 *.pb.go
+*.pb.gw.go
 *_grpc.py
 *_pb2.py
