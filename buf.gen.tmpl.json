@@ -1,0 +1,35 @@
+{
+  "version": "v1",
+  "plugins": [
+    {
+      "plugin": "go",
+      "out": "${ROOT_DIR}",
+      "opt": [
+        "paths=source_relative"
+      ]
+    },
+    {
+      "name": "python",
+      "out": "${ROOT_DIR}"
+    },
+    {
+      "name": "python_grpc",
+      "out": "${ROOT_DIR}"
+    },
+    {
+      "plugin": "go-grpc",
+      "out": "${ROOT_DIR}",
+      "opt": [
+        "paths=source_relative",
+        "require_unimplemented_servers=false"
+      ]
+    },
+    {
+      "plugin": "grpc-gateway",
+      "out": "${ROOT_DIR}",
+      "opt": [
+        "paths=source_relative"
+      ]
+    }
+  ]
+}

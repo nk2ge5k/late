@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package api.proto.v1;
+
+option go_package = "github.com/nk2ge5k/late/api/proto/v1";
+
+message Project {
+  // Uniquie id of the created project.
+  string id = 1;
+  // Name of the project
+  string name = 2;
+}
+
+message CreateProjectRequest {
+  // Name of the project
+  string name = 1;
+}
+
+message CreateProjectResponse {
+  Project project = 1;
+}
+
+message GetProjectRequest {
+  string id = 1;
+}
+
+message GetProjectResponse {
+  Project project = 1;
+}
+
+message GetProjectsRequest {}
+message GetProjectsResponse {}
+
+service ProjectAPI {
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {}
+  rpc GetProject(stream GetProjectRequest) returns (stream GetProjectResponse) {}
+  rpc GetProjects(GetProjectsRequest) returns (GetProjectsResponse) {}
+}
