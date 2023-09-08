@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	Postgres struct {
-		Conn string `yaml:"conn"`
+		URL string `yaml:"url"`
 	} `yaml:"postgres"`
 }
 
