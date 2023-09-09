@@ -14,19 +14,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var (
-	//go:embed sql/insert_project.sql
-	insertProjectQuery string
-	//go:embed sql/get_projects.sql
-	getProjectsQuery string
-)
-
 type ProjectService struct {
 	DB *sql.DB
 }
 
 func (srv *ProjectService) CreateProject(ctx context.Context, req *v1.CreateProjectRequest) (*v1.CreateProjectResponse, error) {
-	row := srv.DB.QueryRowContext(ctx, insertProjectQuery, req.Name)
+	row := insert_project_sql.QueryRow(ctx, srv.DB, req.Name)
 	if err := row.Err(); err != nil {
 		return nil, status.Errorf(codes.Internal, "could not insert project")
 	}
@@ -87,7 +80,7 @@ func getprojects(ctx context.Context, db *sql.DB, projectIDs ...string) ([]*v1.P
 
 	ids := append([]string{}, projectIDs...)
 
-	rows, err := db.QueryContext(ctx, getProjectsQuery, pq.StringArray(ids))
+	rows, err := get_projects_sql.Query(ctx, db, pq.StringArray(ids))
 	if err != nil {
 		return nil, fmt.Errorf("could not query rows: %w", err)
 	}

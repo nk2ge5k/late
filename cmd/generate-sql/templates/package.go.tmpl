@@ -1,0 +1,15 @@
+package {{ .PackageName }}
+
+import "late/storage/postgres"
+
+{{define "Query"}}
+//nolint:stylecheck
+var {{ .GoName }} = postgres.NewSQLQuery(
+  "{{ .Name }}",
+  `-- {{ .Filename }}
+{{ .SQL }}`)
+{{end}}
+
+{{ range $query := .Queries }}
+{{ template "Query" $query }}
+{{ end }}

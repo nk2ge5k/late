@@ -38,9 +38,7 @@ def _yaml_write(path: pathlib.Path, data: dict):
 def _create_uri(db) -> str:
     if not db.password:
         return f"postgresql://{db.user}@{db.host}:{db.port}/{db.dbname}?sslmode=disable"
-    return (
-        f"postgresql://{db.user}:{db.passowrd}@{db.host}:{db.port}/{db.dbname}?sslmode=disable"
-    )
+    return f"postgresql://{db.user}:{db.passowrd}@{db.host}:{db.port}/{db.dbname}?sslmode=disable"
 
 
 @pytest.fixture(scope="session")

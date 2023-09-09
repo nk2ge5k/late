@@ -21,7 +21,7 @@ test: test-go test-python ## Run all tests
 	@echo ""
 
 test-go: gen ## Run all unit tests
-	@$(GO) test -v -race .
+	@$(GO) test -v -race ./...
 
 test-python: $(VENV) gen build-test ## Run all python integration tests
 	@PYTHON=$(VENV_PYTHON) $(ROOT_DIR)/tests/run-testsuite.sh $(ROOT_DIR)
@@ -32,7 +32,7 @@ gen: gen-go gen-proto ## Run code generation
 	@echo ""
 
 gen-go: ## Generate files with go-generate
-	@$(GO) generate .
+	@$(GO) generate ./...
 
 gen-proto: $(VENV) $(BUF) $(PROTOC_GEN_GO) $(PROTOC_GEN_GO_GRPC) $(PROTOC_GEN_GO_GRPC_GATEWAY) ## Generate code with protoc plugins
 	@$(TMP_BIN)/buf generate \
@@ -58,8 +58,8 @@ format-yaml: $(YAMLFMT) ## Format YAML files
 	@$(TMP_BIN)/yamlfmt -conf $(ROOT_DIR)/.yamlfmt .
 
 format-python: $(VENV) ## Format Python files
-	@$(PYTHON_VENV_DIR)/bin/isort .
-	@$(PYTHON_VENV_DIR)/bin/black .
+	@$(PYTHON_VENV_DIR)/bin/isort . 2>/dev/null > /dev/null
+	@$(PYTHON_VENV_DIR)/bin/black . 2>/dev/null > /dev/null
 
 ##################################### LINT #####################################
 

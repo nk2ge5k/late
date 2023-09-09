@@ -28,3 +28,4 @@ build/
 *.pb.gw.go
 *_grpc.py
 *_pb2.py
+*.gen.go

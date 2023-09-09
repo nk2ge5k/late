@@ -72,6 +72,7 @@ linters-settings:
       - '4096'
     ignored-functions:
       - strings.SplitN
+      - os.OpenFile
   govet:
     check-shadowing: true
   lll:
