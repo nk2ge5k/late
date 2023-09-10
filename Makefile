@@ -49,7 +49,7 @@ build-test: gen ## Build for local testing
 	@echo ""
 
 	@mkdir -p $(ROOT_DIR)/build/development
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 $(GO) build $(GOFLAGS) -race \
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build $(GOFLAGS) -race \
 	 -o $(ROOT_DIR)/build/development/late $(ROOT_DIR)/cmd/late
 
 
