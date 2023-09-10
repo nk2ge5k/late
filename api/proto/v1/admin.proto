@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package api.proto.v1;
 
+import "google/api/annotations.proto";
+
 option go_package = "late/api/proto/v1";
 
 message Project {
@@ -20,14 +22,6 @@ message CreateProjectResponse {
   Project project = 1;
 }
 
-message GetProjectRequest {
-  string project_id = 1;
-}
-
-message GetProjectResponse {
-  Project project = 1;
-}
-
 message GetProjectsRequest {
   repeated string project_ids = 1;
 }
@@ -37,7 +31,17 @@ message GetProjectsResponse {
 }
 
 service ProjectAPI {
-  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {}
-  rpc GetProject(stream GetProjectRequest) returns (stream GetProjectResponse) {}
-  rpc GetProjects(GetProjectsRequest) returns (GetProjectsResponse) {}
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {
+    option (google.api.http) = {
+      post: "/v1/project/create",
+      body: "*"
+    };
+  }
+
+  rpc GetProjects(GetProjectsRequest) returns (GetProjectsResponse) {
+    option (google.api.http) = {
+      post: "/v1/project/get",
+      body: "*"
+    };
+  }
 }

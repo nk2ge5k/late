@@ -3,9 +3,8 @@ package api
 import (
 	"context"
 	"database/sql"
-	_ "embed"
 	"fmt"
-	"io"
+	"log/slog"
 
 	v1 "late/api/proto/v1"
 
@@ -21,12 +20,16 @@ type ProjectService struct {
 func (srv *ProjectService) CreateProject(ctx context.Context, req *v1.CreateProjectRequest) (*v1.CreateProjectResponse, error) {
 	row := insert_project_sql.QueryRow(ctx, srv.DB, req.Name)
 	if err := row.Err(); err != nil {
-		return nil, status.Errorf(codes.Internal, "could not insert project")
+		slog.ErrorContext(ctx, "Failed to insert project",
+			slog.String("error", err.Error()))
+		return nil, status.Errorf(codes.Internal, "Could not insert project: %v", err)
 	}
 
 	var projectID string
 	if err := row.Scan(&projectID); err != nil {
-		return nil, status.Errorf(codes.Internal, "could not scan project's id")
+		slog.ErrorContext(ctx, "Failed to get project ID",
+			slog.String("error", err.Error()))
+		return nil, status.Errorf(codes.Internal, "Could not scan project's id: %v", err)
 	}
 
 	return &v1.CreateProjectResponse{
@@ -37,37 +40,12 @@ func (srv *ProjectService) CreateProject(ctx context.Context, req *v1.CreateProj
 	}, nil
 }
 
-func (srv *ProjectService) GetProject(stream v1.ProjectAPI_GetProjectServer) error {
-	for {
-		req, err := stream.Recv()
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-
-		projects, err := getprojects(stream.Context(), srv.DB, req.ProjectId)
-		if err != nil {
-			return status.Errorf(codes.Internal, "could not get project")
-		}
-
-		if len(projects) == 0 {
-			continue
-		}
-
-		response := &v1.GetProjectResponse{Project: projects[0]}
-
-		if serr := stream.Send(response); serr != nil {
-			return serr
-		}
-	}
-}
-
 func (srv *ProjectService) GetProjects(ctx context.Context, req *v1.GetProjectsRequest) (*v1.GetProjectsResponse, error) {
 	projects, err := getprojects(ctx, srv.DB, req.ProjectIds...)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "could not get projects")
+		slog.ErrorContext(ctx, "Failed to get projects",
+			slog.String("error", err.Error()))
+		return nil, status.Errorf(codes.Internal, "Could not get projects: %v", err)
 	}
 
 	return &v1.GetProjectsResponse{Projects: projects}, nil

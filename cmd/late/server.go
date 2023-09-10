@@ -100,7 +100,8 @@ func runServerE(cmd *cobra.Command, args []string) error {
 				metricsHandler.ServeHTTP(rw, req)
 			}))
 		rerr := reigisterGRPCGateways(gctx, mux, cfg.GRPC.Listen,
-			v1.RegisterHealthAPIHandlerFromEndpoint)
+			v1.RegisterHealthAPIHandlerFromEndpoint,
+			v1.RegisterProjectAPIHandlerFromEndpoint)
 		if rerr != nil {
 			return rerr
 		}
