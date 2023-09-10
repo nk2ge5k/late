@@ -34,3 +34,16 @@ jobs:
         run: BUF_LINT_FORMAT="github-actions" make lint-proto
       - name: Lint Go
         run: GOLANGCI_LINT_FORMAT="github-actions" make lint-go
+      - name: Lint format
+        run: git diff --exit-code
+      - name: Lint uncommited
+        run: >-
+          uncommited=$(git ls-files -d -m -o --exclude-standard --directory --no-empty-directory)
+          if [[ -z "$uncommited" ]];
+          then
+            exit 0
+          else
+            echo "::error Uncommited changes detected"
+            echo "$uncommited"
+            exit 1
+          fi
