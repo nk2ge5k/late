@@ -3,7 +3,9 @@ ROOT_DIR = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 GO ?= $(shell which go)
 PYTHON ?= $(shell which python3)
+
 GOLANGCI_LINT_FORMAT ?= "colored-line-number"
+BUF_LINT_FORMAT ?= "text"
 
 GIT := /usr/bin/git
 
@@ -110,7 +112,9 @@ lint-go: $(GOLANGCI_LINT) gen ## Run linting on Go files
 		--out-format=$(GOLANGCI_LINT_FORMAT)
 
 lint-proto: $(BUF) ## Run linting on Protobuf files
-	@$(TMP_BIN)/buf lint -v --config $(ROOT_DIR)/buf.yaml
+	@$(TMP_BIN)/buf lint -v \
+		--config=$(ROOT_DIR)/buf.yaml \
+		--error-format=$(BUF_LINT_FORMAT)
 
 ##################################### HELP #####################################
 

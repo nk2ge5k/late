@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: make build
       - name: Lint Proto
-        run: make lint-proto
+        run: BUF_LINT_FORMAT="github-actions" make lint-proto
       - name: Lint Go
         run: GOLANGCI_LINT_FORMAT="github-actions" make lint-go
       - name: Test Go

@@ -14,6 +14,7 @@ import (
 
 	"late/api"
 	v1 "late/api/proto/v1"
+	"late/metrics"
 	"late/shutdown"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -90,7 +91,14 @@ func runServerE(cmd *cobra.Command, args []string) error {
 	})
 
 	g.Go(func() error {
+		metricsHandler := metrics.Handler()
+
 		mux := runtime.NewServeMux()
+		//nolint:errcheck
+		mux.HandlePath(http.MethodGet, "/metrics", runtime.HandlerFunc(
+			func(rw http.ResponseWriter, req *http.Request, _ map[string]string) {
+				metricsHandler.ServeHTTP(rw, req)
+			}))
 		rerr := reigisterGRPCGateways(gctx, mux, cfg.GRPC.Listen,
 			v1.RegisterHealthAPIHandlerFromEndpoint)
 		if rerr != nil {

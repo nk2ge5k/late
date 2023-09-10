@@ -4,6 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
+	"late/metrics"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type SQLDB interface {
@@ -49,17 +54,27 @@ func (q *SQLQuery) GoString() string { return q.sql }
 // Otherwise, the *Row's Scan scans the first selected row and discards
 // the rest.
 func (q *SQLQuery) QueryRow(ctx context.Context, src SQLDB, args ...any) *sql.Row {
+	defer measureTime(time.Now(), q.name, "query_row")
 	return src.QueryRowContext(ctx, q.sql, args...)
 }
 
 // Query executes a query that returns rows, typically a SELECT.
 // The args are for any placeholder parameters in the query.
 func (q *SQLQuery) Query(ctx context.Context, src SQLDB, args ...any) (*sql.Rows, error) {
+	defer measureTime(time.Now(), q.name, "query")
 	return src.QueryContext(ctx, q.sql, args...)
 }
 
 // Exec executes a query without returning any rows.
 // The args are for any placeholder parameters in the query.
 func (q *SQLQuery) Exec(ctx context.Context, src SQLDB, args ...any) (sql.Result, error) {
+	defer measureTime(time.Now(), q.name, "exec")
 	return src.ExecContext(ctx, q.sql, args...)
+}
+
+func measureTime(start time.Time, name, kind string) {
+	metrics.DatabaseQueryRequestDuration.With(prometheus.Labels{
+		"query": name,
+		"kind":  kind,
+	}).Observe(time.Since(start).Seconds())
 }

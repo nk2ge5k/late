@@ -2,6 +2,10 @@ from testsuite.utils import matching
 
 
 async def test_health(late):
+    """
+    Testing that the /v1/health/check handler returns valid data
+    """
+
     response = await late.get("/v1/health/check")
     assert response.status == 200
 
@@ -10,3 +14,12 @@ async def test_health(late):
         "commit": matching.any_string,
         "date": matching.any_string,
     }
+
+
+async def test_metrics(late):
+    """
+    Testing that metrics are accessible via an HTTP request.
+    """
+
+    response = await late.get("/metrics")
+    assert response.status == 200
