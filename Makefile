@@ -3,6 +3,7 @@ ROOT_DIR = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 GO ?= $(shell which go)
 PYTHON ?= $(shell which python3)
+GOLANGCI_LINT_FORMAT ?= "colored-line-number"
 
 include Makefile.tools
 
@@ -67,7 +68,9 @@ lint: lint-proto lint-go ## Run every available linter
 	@echo ""
 
 lint-go: $(GOLANGCI_LINT) gen ## Run linting on Go files
-	@$(TMP_BIN)/golangci-lint run -c $(ROOT_DIR)/.golangci.yaml
+	@$(TMP_BIN)/golangci-lint run \
+		-c $(ROOT_DIR)/.golangci.yaml \
+		--out-format=$(GOLANGCI_LINT_FORMAT)
 
 lint-proto: $(BUF) ## Run linting on Protobuf files
 	@$(TMP_BIN)/buf lint -v --config $(ROOT_DIR)/buf.yaml

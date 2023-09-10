@@ -21,7 +21,11 @@ jobs:
           go-version: '1.21'
       - name: Build
         run: make build
-      - name: Lint
-        run: make lint
-      - name: Test
-        run: make test
+      - name: Lint Proto
+        run: make lint-proto
+      - name: Lint Go
+        run: GOLANGCI_LINT_FORMAT="github-actions" make lint-go
+      - name: Test Go
+        run: make test-go
+      - name: Test Py
+        run: make test-python
