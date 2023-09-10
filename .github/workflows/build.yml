@@ -35,5 +35,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: build-${{ github.ref_name }}-${{ github.sha }}
+          name: build-${{ github.sha }}
           path: build/production
