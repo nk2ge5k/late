@@ -34,3 +34,7 @@ jobs:
         run: BUF_LINT_FORMAT="github-actions" make lint-proto
       - name: Lint Go
         run: GOLANGCI_LINT_FORMAT="github-actions" make lint-go
+      - name: Lint format
+        run: git diff --exit-code
+      - name: Lint uncommited
+        run: ./scripts/check-uncommited.sh
