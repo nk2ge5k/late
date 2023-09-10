@@ -4,6 +4,7 @@ import tempfile
 
 import pytest
 import yaml
+from grpclib.client import Channel
 from testsuite.databases.pgsql import discover
 
 ROOT_DIR_ENV = "ROOT_DIR"
@@ -104,3 +105,14 @@ def late(create_service_client, service_daemon):
     Returns service client
     """
     return create_service_client(f"http://{HTTP_SERVER_HOSTPORT}")
+
+
+@pytest.fixture
+async def grpc_channel(service_daemon):
+    """
+    Returns GRCP channel
+    """
+    (host, port) = GRPC_SERVER_HOSTPORT.split(":", 2)
+
+    async with Channel(host, int(port)) as channel:
+        yield channel
