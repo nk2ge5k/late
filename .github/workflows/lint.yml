@@ -3,6 +3,7 @@ on:
   workflow_call:
     inputs:
       ref:
+        type: string
         description: The branch, tag or SHA to checkout.When checking out the repository thattriggered a workflow, this defaults to the reference or SHA for that event.
         required: true
         default: ${{ github.ref }}
