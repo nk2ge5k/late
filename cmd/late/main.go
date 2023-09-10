@@ -10,7 +10,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	version = "dev"
+	commit  = "local"
+	date    = ""
+)
+
 func main() {
+	late.SetBuildInfo(version, commit, date)
+
 	rootCmd := &cobra.Command{Use: "late"}
 	rootCmd.AddCommand(versionCmd())
 	rootCmd.AddCommand(serverCmd())

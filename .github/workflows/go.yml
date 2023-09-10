@@ -29,3 +29,8 @@ jobs:
         run: make test-go
       - name: Test Py
         run: make test-python
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: build

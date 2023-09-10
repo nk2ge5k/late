@@ -5,15 +5,52 @@ GO ?= $(shell which go)
 PYTHON ?= $(shell which python3)
 GOLANGCI_LINT_FORMAT ?= "colored-line-number"
 
+GIT := /usr/bin/git
+
+DATE     := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+REVISION := $(shell $(GIT) rev-parse --short HEAD)
+TAG      := v$(shell date -u +%Y%m%d%H%M)
+
+OS = $(shell uname -s)
+
+ifeq ($(OS),Linux)
+	GOOS   ?= linux
+	GOARCH ?= amd64
+	GOFLAGS ?= -a -trimpath -ldflags "-X 'main.version=$(TAG)' -X 'main.commit=$(REVISION)' -X 'main.date=$(DATE)' -linkmode external -extldflags=-static"
+endif
+ifeq ($(OS),Darwin)
+	GOOS   ?= darwin
+	GOARCH ?= $(shell uname -m)
+	GOFLAGS ?= -a -trimpath -ldflags "-X 'main.version=$(TAG)' -X 'main.commit=$(REVISION)' -X 'main.date=$(DATE)'"
+endif
+
 include Makefile.tools
 
 build: gen ## Build for production
+	@echo "Building for production..."
+	@echo "Go version:                $(shell $(GO) version)"
+	@echo "OS:                        $(GOOS)"
+	@echo "Arch:                      $(GOARCH)"
+	@echo "Binary output:             $(ROOT_DIR)/build/production/late"
+	@echo "Version:                   $(TAG)"
+	@echo ""
+
 	@mkdir -p $(ROOT_DIR)/build/production
-	$(GO) build -o $(ROOT_DIR)/build/production/late $(ROOT_DIR)/cmd/late
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 $(GO) build $(GOFLAGS) \
+		-o $(ROOT_DIR)/build/production/late $(ROOT_DIR)/cmd/late
 
 build-test: gen ## Build for local testing
+	@echo "Building for development..."
+	@echo "Go version:                $(shell $(GO) version)"
+	@echo "OS:                        $(GOOS)"
+	@echo "Arch:                      $(GOARCH)"
+	@echo "Binary output:             $(ROOT_DIR)/build/development/late"
+	@echo "Version:                   $(TAG)"
+	@echo ""
+
 	@mkdir -p $(ROOT_DIR)/build/development
-	$(GO) build -o $(ROOT_DIR)/build/development/late $(ROOT_DIR)/cmd/late
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 $(GO) build $(GOFLAGS) -race \
+	 -o $(ROOT_DIR)/build/development/late $(ROOT_DIR)/cmd/late
 
 
 ##################################### TEST #####################################
