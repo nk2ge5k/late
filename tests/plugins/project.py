@@ -16,7 +16,7 @@ GRPC_SERVER_HOSTPORT = "localhost:18081"
 def pgsql_local(project_root, pgsql_local_create):
     discovered = discover.find_schemas(
         "late",
-        schema_dirs=[project_root / "postgresql"],
+        schema_dirs=[project_root / "storage" / "postgres" / "migrations"],
     )
     return pgsql_local_create(list(discovered.values()))
 
