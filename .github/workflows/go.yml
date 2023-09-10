@@ -28,7 +28,7 @@ jobs:
         uses: actions/cache@v3
         with:
           key: venv-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          path: .tmp
+          path: .venv
       - name: Build
         run: make build
       - name: Lint Proto
