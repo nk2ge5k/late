@@ -5,7 +5,8 @@ if [[ -z "$uncommited" ]];
 then
   exit 0
 else
-  echo "::error Uncommited changes detected"
+  echo "::group::Uncommited changes detected"
   echo "$uncommited"
+  echo "::endgroup::"
   exit 1
 fi
