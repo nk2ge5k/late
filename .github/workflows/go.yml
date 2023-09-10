@@ -5,42 +5,16 @@ on:
   pull_request:
     branches: ["main"]
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+    with:
+      ref: ${{ github.ref }}
+  test:
+    uses: ./.github/workflows/test.yml
+    with:
+      ref: ${{ github.ref }}
   build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install postgresql
-        run: sudo apt-get install postgresql postgresql-contrib
-      - name: Install protoc
-        uses: arduino/setup-protoc@v1
-        with:
-          version: 3.6.1
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-      - name: Cache temporary
-        uses: actions/cache@v3
-        with:
-          key: tmp-${{ runner.os }}-${{ hashFiles('Makefile.tools') }}
-          path: .tmp
-      - name: Cache virtual environment
-        uses: actions/cache@v3
-        with:
-          key: venv-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-          path: .venv
-      - name: Build
-        run: make build
-      - name: Lint Proto
-        run: BUF_LINT_FORMAT="github-actions" make lint-proto
-      - name: Lint Go
-        run: GOLANGCI_LINT_FORMAT="github-actions" make lint-go
-      - name: Test Go
-        run: make test-go
-      - name: Test Py
-        run: make test-python
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: build
+    needs: [lint, test]
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ github.ref }}
