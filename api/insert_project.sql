@@ -1,3 +1,4 @@
-INSERT INTO projects (name)
-VALUES ($1)
-RETURNING id;
+INSERT INTO projects(name)
+  VALUES ($1)
+RETURNING
+  id;
