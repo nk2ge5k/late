@@ -5,51 +5,55 @@ package api.proto.v1;
 option go_package = "late/api/proto/v1";
 
 message Keyset {
-	// Unique keyset identifier.
-	string id = 1;
-	// Project's id keyset belongs to.
-	string project_id = 2;
-	// Keyset's name.
-	string name = 3;
+  // Unique keyset identifier.
+  string id = 1;
+  // Project's id keyset belongs to.
+  string project_id = 2;
+  // Keyset's name.
+  string name = 3;
+  // Keyset's description.
+  string description = 4;
 }
 
 message CreateKeysetRequest {
-	// Project's id keyset belongs to.
-	string project_id = 2;
-	// Keyset's name.
-	string name = 3;
+  // Project's id keyset belongs to.
+  string project_id = 1;
+  // Keyset's name.
+  string name = 2;
+  // Keyset's description.
+  string description = 3;
 }
 
 message CreateKeysetResponse {
-	// Created keyset.
-	Keyset keyset = 1;
+  // Created keyset.
+  Keyset keyset = 1;
 }
 
 message UpdateKeysetRequest {
-	// Keyset to update.
-	Keyset keyset = 1;
+  // Keyset to update.
+  Keyset keyset = 1;
 }
 
 message UpdateKeysetResponse {
-	// Keyset to update.
-	Keyset keyset = 1;
+  // Keyset to update.
+  Keyset keyset = 1;
 }
 
 message DeleteKeysetRequest {
-	// Unique keyset identifier.
-	string id = 1;
+  // Unique keyset identifier.
+  string id = 1;
 }
 
 message DeleteKeysetResponse {}
 
 message GetKeysetsRequest {
-	// Project's id keysets belong to.
-	string project_id = 1;
+  // Project's id keysets belong to.
+  string project_id = 1;
 }
 
 message GetKeysetsResponse {
-	// Requested keyset.
-	repeated Keyset keysets = 1;
+  // Requested keyset.
+  repeated Keyset keysets = 1;
 }
 
 service KeysetAPI {

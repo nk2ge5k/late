@@ -27,17 +27,18 @@ func (srv *KeysetService) CreateKeyset(
 ) (*v1.CreateKeysetResponse, error) {
 	var (
 		keyset = &v1.Keyset{
-			ProjectId: req.ProjectId,
-			Name:      req.Name,
+			ProjectId:   req.ProjectId,
+			Name:        req.Name,
+			Description: req.Description,
 		}
 		err error
 	)
 
-	keyset, err = upsertkeyset(ctx, srv.DB, keyset)
+	keyset, err = insertKeyset(ctx, srv.DB, keyset)
 	if err != nil {
 		slog.ErrorContext(ctx, "could not upsert keyset", "error", err)
 
-		return nil, status.Error(codes.Internal, "could not insert keyset")
+		return nil, status.Errorf(codes.Internal, "could not insert keyset: %v", err)
 	}
 
 	return &v1.CreateKeysetResponse{Keyset: keyset}, nil
@@ -50,11 +51,11 @@ func (srv *KeysetService) UpdateKeyset(
 ) (*v1.UpdateKeysetResponse, error) {
 	var err error
 
-	keyset, err := upsertkeyset(ctx, srv.DB, req.Keyset)
+	keyset, err := updateKeyset(ctx, srv.DB, req.Keyset)
 	if err != nil {
 		slog.ErrorContext(ctx, "could not upsert keyset", "error", err)
 
-		return nil, status.Error(codes.Internal, "could not update keyset")
+		return nil, status.Errorf(codes.Internal, "could not update keyset: %v", err)
 	}
 
 	return &v1.UpdateKeysetResponse{Keyset: keyset}, nil
@@ -68,7 +69,7 @@ func (srv *KeysetService) DeleteKeyset(
 	if err != nil {
 		slog.ErrorContext(ctx, "could not delete keyset", "error", err)
 
-		return nil, status.Error(codes.Internal, "could not delete keyset")
+		return nil, status.Errorf(codes.Internal, "could not delete keyset: %v", err)
 	}
 
 	return &v1.DeleteKeysetResponse{}, nil
@@ -78,15 +79,23 @@ func (srv *KeysetService) GetKeysets(
 	ctx context.Context,
 	req *v1.GetKeysetsRequest,
 ) (*v1.GetKeysetsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
+	keysets, err := getKeysets(ctx, srv.DB, req.ProjectId)
+	if err != nil {
+		slog.ErrorContext(ctx, "could not get keysets", "error", err)
+
+		return nil, status.Errorf(codes.Internal, "could not get keysets: %v", err)
+	}
+
+	return &v1.GetKeysetsResponse{Keysets: keysets}, nil
 }
 
-func upsertkeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyset, error) {
-	row := upsert_keyset_sql.QueryRow(
+func insertKeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyset, error) {
+	row := insert_keyset_sql.QueryRow(
 		ctx,
 		db,
 		keyset.ProjectId,
 		keyset.Name,
+		keyset.Description,
 	)
 	if err := row.Err(); err != nil {
 		return nil, fmt.Errorf("could not execute query: %w", err)
@@ -94,9 +103,54 @@ func upsertkeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyse
 
 	result := new(v1.Keyset)
 
-	err := row.Scan(&result.Id, &result.ProjectId, &result.Name)
+	err := row.Scan(&result.Id, &result.ProjectId, &result.Name, &result.Description)
 	if err != nil {
 		return nil, fmt.Errorf("could not scan keyset: %w", err)
+	}
+
+	return result, nil
+}
+
+func updateKeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyset, error) {
+	row := update_keyset_sql.QueryRow(
+		ctx,
+		db,
+		keyset.Id,
+		keyset.Name,
+		keyset.Description,
+	)
+	if err := row.Err(); err != nil {
+		return nil, fmt.Errorf("could not execute query: %w", err)
+	}
+
+	result := new(v1.Keyset)
+
+	err := row.Scan(&result.Id, &result.ProjectId, &result.Name, &result.Description)
+	if err != nil {
+		return nil, fmt.Errorf("could not scan keyset: %w", err)
+	}
+
+	return result, nil
+}
+
+func getKeysets(ctx context.Context, db *sql.DB, projectID string) ([]*v1.Keyset, error) {
+	rows, err := get_keysets_sql.Query(ctx, db, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("could not query rows: %w", err)
+	}
+	defer rows.Close()
+
+	result := make([]*v1.Keyset, 0)
+
+	for rows.Next() {
+		keyset := new(v1.Keyset)
+
+		err = rows.Scan(&keyset.Id, &keyset.ProjectId, &keyset.Name, &keyset.Description)
+		if err != nil {
+			return nil, fmt.Errorf("could not scan keyset: %w", err)
+		}
+
+		result = append(result, keyset)
 	}
 
 	return result, nil
