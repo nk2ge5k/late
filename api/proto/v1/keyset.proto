@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package api.proto.v1;
+
+option go_package = "late/api/proto/v1";
+
+message Keyset {
+	// Unique keyset identifier.
+	string id = 1;
+	// Project's id keyset belongs to.
+	string project_id = 2;
+	// Keyset's name.
+	string name = 3;
+}
+
+message CreateKeysetRequest {
+	// Project's id keyset belongs to.
+	string project_id = 2;
+	// Keyset's name.
+	string name = 3;
+}
+
+message CreateKeysetResponse {
+	// Created keyset.
+	Keyset keyset = 1;
+}
+
+message UpdateKeysetRequest {
+	// Keyset to update.
+	Keyset keyset = 1;
+}
+
+message UpdateKeysetResponse {
+	// Keyset to update.
+	Keyset keyset = 1;
+}
+
+message DeleteKeysetRequest {
+	// Unique keyset identifier.
+	string id = 1;
+}
+
+message DeleteKeysetResponse {}
+
+message GetKeysetsRequest {
+	// Project's id keysets belong to.
+	string project_id = 1;
+}
+
+message GetKeysetsResponse {
+	// Requested keyset.
+	repeated Keyset keysets = 1;
+}
+
+service KeysetAPI {
+  rpc CreateKeyset(CreateKeysetRequest) returns (CreateKeysetResponse) {}
+  rpc UpdateKeyset(UpdateKeysetRequest) returns (UpdateKeysetResponse) {}
+  rpc DeleteKeyset(DeleteKeysetRequest) returns (DeleteKeysetResponse) {}
+  rpc GetKeysets(GetKeysetsRequest) returns (GetKeysetsResponse) {}
+}
