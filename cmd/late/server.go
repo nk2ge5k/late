@@ -70,6 +70,7 @@ func runServerE(cmd *cobra.Command, args []string) error {
 		}
 
 		v1.RegisterProjectAPIServer(srv, &api.ProjectService{DB: db})
+		v1.RegisterKeysetAPIServer(srv, &api.KeysetService{DB: db})
 		v1.RegisterHealthAPIServer(srv, api.HealthService{})
 	}
 
