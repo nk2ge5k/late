@@ -1,7 +1,7 @@
 import pytest
 from google.protobuf import json_format
 
-from api.proto.v1 import admin_grpc
+from api.proto.v1 import admin_grpc, keyset_grpc
 
 pytest_plugins = ["tests.plugins.plugin"]
 
@@ -19,3 +19,8 @@ def _message_to_dict_fixture():
         )
 
     return convert
+
+
+@pytest.fixture(name="keyset_api")
+def _keyset_api_fixture(grpc_channel):
+    return keyset_grpc.KeysetAPIStub(grpc_channel)
