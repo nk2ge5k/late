@@ -84,7 +84,7 @@ async def service_scope(create_daemon_scope, project_root, config_path):
             "--config",
             str(config_path),
         ],
-        ping_url=f"http://{HTTP_SERVER_HOSTPORT}/v1/health/check",
+        ping_url=f"http://{HTTP_SERVER_HOSTPORT}/healthz",
     ) as scope:
         yield scope
 

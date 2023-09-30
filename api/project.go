@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	v1 "late/api/proto/v1"
+	"late/api/query"
 
 	"github.com/lib/pq"
 	"google.golang.org/grpc/codes"
@@ -18,7 +19,7 @@ type ProjectService struct {
 }
 
 func (srv *ProjectService) CreateProject(ctx context.Context, req *v1.CreateProjectRequest) (*v1.CreateProjectResponse, error) {
-	row := insert_project_sql.QueryRow(ctx, srv.DB, req.Name)
+	row := query.Insert_project_sql.QueryRow(ctx, srv.DB, req.Name)
 	if err := row.Err(); err != nil {
 		slog.ErrorContext(ctx, "Failed to insert project",
 			slog.String("error", err.Error()))
@@ -58,7 +59,7 @@ func getprojects(ctx context.Context, db *sql.DB, projectIDs ...string) ([]*v1.P
 
 	ids := append([]string{}, projectIDs...)
 
-	rows, err := get_projects_sql.Query(ctx, db, pq.StringArray(ids))
+	rows, err := query.Get_projects_sql.Query(ctx, db, pq.StringArray(ids))
 	if err != nil {
 		return nil, fmt.Errorf("could not query rows: %w", err)
 	}
