@@ -51,7 +51,7 @@ build-test: gen ## Build for local testing
 	@echo ""
 
 	@mkdir -p $(ROOT_DIR)/build/development
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build $(GOFLAGS) -race \
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build $(GOFLAGS) -tags local -race \
 	 -o $(ROOT_DIR)/build/development/late $(ROOT_DIR)/cmd/late
 
 
@@ -64,7 +64,10 @@ test-go: gen ## Run all unit tests
 	@$(GO) test -v -race ./...
 
 test-python: $(VENV) gen build-test ## Run all python integration tests
-	@PYTHON=$(VENV_PYTHON) $(ROOT_DIR)/tests/run-testsuite.sh $(ROOT_DIR)
+	@FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
+		GOOGLE_CLOUD_PROJECT=late-late \
+		PYTHON=$(VENV_PYTHON) \
+		$(ROOT_DIR)/tests/run-testsuite.sh $(ROOT_DIR)
 
 ################################### GENERATE ###################################
 
@@ -115,6 +118,18 @@ lint-proto: $(BUF) ## Run linting on Protobuf files
 	@$(TMP_BIN)/buf lint -v \
 		--config=$(ROOT_DIR)/buf.yaml \
 		--error-format=$(BUF_LINT_FORMAT)
+
+################################### FIREBASE ###################################
+
+emulator: ## Start firebase emulator
+ifeq (, $(shell which firebase))
+	@echo "No firebase command found, see https://firebase.google.com/docs/emulator-suite/install_and_configure for installation instructions"
+else
+	firebase emulators:start \
+		--only auth \
+		--import firebase-emulator \
+		--export-on-exit firebase-emulator
+endif
 
 ##################################### HELP #####################################
 

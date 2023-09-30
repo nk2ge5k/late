@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package api.proto.v1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "late/api/proto/v1";
@@ -19,7 +18,5 @@ message CheckResponse {
 
 service HealthAPI {
   // Check returns service build info if service is ready to receive requests.
-  rpc Check(google.protobuf.Empty) returns (CheckResponse) {
-    option (google.api.http) = {get: "/v1/health/check"};
-  }
+  rpc Check(google.protobuf.Empty) returns (CheckResponse) {}
 }

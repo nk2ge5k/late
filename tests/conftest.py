@@ -24,3 +24,8 @@ def _message_to_dict_fixture():
 @pytest.fixture(name="keyset_api")
 def _keyset_api_fixture(grpc_channel):
     return keyset_grpc.KeysetAPIStub(grpc_channel)
+
+
+@pytest.fixture(name="authorization")
+def _authrization_fixture():
+    return {"authorization": "bearer testsuite-token"}

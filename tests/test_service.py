@@ -6,7 +6,7 @@ async def test_health(late):
     Testing that the /v1/health/check handler returns valid data
     """
 
-    response = await late.get("/v1/health/check")
+    response = await late.get("/healthz")
     assert response.status == 200
 
     assert response.json() == {

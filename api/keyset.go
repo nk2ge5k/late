@@ -8,6 +8,7 @@ import (
 	"log/slog"
 
 	v1 "late/api/proto/v1"
+	"late/api/query"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -65,7 +66,7 @@ func (srv *KeysetService) DeleteKeyset(
 	ctx context.Context,
 	req *v1.DeleteKeysetRequest,
 ) (*v1.DeleteKeysetResponse, error) {
-	_, err := delete_keyset_sql.Exec(ctx, srv.DB, req.Id)
+	_, err := query.Delete_keyset_sql.Exec(ctx, srv.DB, req.Id)
 	if err != nil {
 		slog.ErrorContext(ctx, "could not delete keyset", "error", err)
 
@@ -90,7 +91,7 @@ func (srv *KeysetService) GetKeysets(
 }
 
 func insertKeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyset, error) {
-	row := insert_keyset_sql.QueryRow(
+	row := query.Insert_keyset_sql.QueryRow(
 		ctx,
 		db,
 		keyset.ProjectId,
@@ -112,7 +113,7 @@ func insertKeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyse
 }
 
 func updateKeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyset, error) {
-	row := update_keyset_sql.QueryRow(
+	row := query.Update_keyset_sql.QueryRow(
 		ctx,
 		db,
 		keyset.Id,
@@ -134,7 +135,7 @@ func updateKeyset(ctx context.Context, db *sql.DB, keyset *v1.Keyset) (*v1.Keyse
 }
 
 func getKeysets(ctx context.Context, db *sql.DB, projectID string) ([]*v1.Keyset, error) {
-	rows, err := get_keysets_sql.Query(ctx, db, projectID)
+	rows, err := query.Get_keysets_sql.Query(ctx, db, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("could not query rows: %w", err)
 	}

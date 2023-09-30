@@ -4,12 +4,15 @@ from testsuite.utils import matching
 from api.proto.v1 import admin_pb2, keyset_pb2
 
 
-async def test_create_get(project_api, keyset_api, message_to_dict):
+async def test_create_get(
+    project_api, keyset_api, message_to_dict, authorization
+):
     NAME = "Test keyset"
 
     project_response = message_to_dict(
         await project_api.CreateProject(
-            admin_pb2.CreateProjectRequest(name="Testsuite")
+            admin_pb2.CreateProjectRequest(name="Testsuite"),
+            metadata=authorization,
         )
     )
 
@@ -20,7 +23,8 @@ async def test_create_get(project_api, keyset_api, message_to_dict):
             keyset_pb2.CreateKeysetRequest(
                 project_id=project_id,
                 name=NAME,
-            )
+            ),
+            metadata=authorization,
         )
     )
 
@@ -35,9 +39,8 @@ async def test_create_get(project_api, keyset_api, message_to_dict):
 
     response = message_to_dict(
         await keyset_api.GetKeysets(
-            keyset_pb2.GetKeysetsRequest(
-                project_id=project_id,
-            )
+            keyset_pb2.GetKeysetsRequest(project_id=project_id),
+            metadata=authorization,
         )
     )
     assert "keysets" in response

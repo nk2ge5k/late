@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package api.proto.v1;
 
-import "google/api/annotations.proto";
-
 option go_package = "late/api/proto/v1";
 
 message Project {
@@ -31,17 +29,7 @@ message GetProjectsResponse {
 }
 
 service ProjectAPI {
-  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {
-    option (google.api.http) = {
-      post: "/v1/project/create",
-      body: "*"
-    };
-  }
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse) {}
 
-  rpc GetProjects(GetProjectsRequest) returns (GetProjectsResponse) {
-    option (google.api.http) = {
-      post: "/v1/project/get",
-      body: "*"
-    };
-  }
+  rpc GetProjects(GetProjectsRequest) returns (GetProjectsResponse) {}
 }
