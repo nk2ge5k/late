@@ -21,6 +21,7 @@ import (
 	v1 "late/api/proto/v1"
 	"late/metrics"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
@@ -109,14 +110,22 @@ func runServe(ctx context.Context, _ []string, args serveArgsT) error {
 		return err
 	}
 
+	grpcMetrics := prometheus.NewServerMetrics(
+		prometheus.WithServerHandlingTimeHistogram())
+	if err := metrics.Register(grpcMetrics); err != nil {
+		return fmt.Errorf("register grpc metrics: %w", err)
+	}
+
 	srv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(logInterceptor),
+			grpcMetrics.UnaryServerInterceptor(),
 			auth.UnaryServerInterceptor(apiauth.GRPCInterceptor(authenticator)),
 			recovery.UnaryServerInterceptor(recovery.WithRecoveryHandler(panicInterceptor)),
 		),
 		grpc.ChainStreamInterceptor(
 			logging.StreamServerInterceptor(logInterceptor),
+			grpcMetrics.StreamServerInterceptor(),
 			auth.StreamServerInterceptor(apiauth.GRPCInterceptor(authenticator)),
 			recovery.StreamServerInterceptor(recovery.WithRecoveryHandler(panicInterceptor)),
 		),
