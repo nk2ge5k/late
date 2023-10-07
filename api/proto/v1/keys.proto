@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package api.proto.v1;
+
+option go_package = "late/api/proto/v1";
+
+// Translation is a translation for specific langunage with plural forms.
+message Translation {
+  string language = 1;
+  repeated string texts = 2;
+}
+
+message Key {
+  string key = 1;
+  string keyset_id = 2;
+  string description = 3;
+  repeated Translation translations = 4;
+}
+
+message CreateKeyRequest {
+  string key = 1;
+  string keyset_id = 2;
+  string description = 3;
+  repeated Translation translations = 4;
+}
+
+message CreateKeyResponse {}
+
+message UpdateKeyRequest {
+  string key = 1;
+  string keyset_id = 2;
+  string description = 3;
+  repeated Translation translations = 4;
+}
+
+message UpdateKeyResponse {}
+
+message DeleteKeyRequest {
+  string keyset_id = 1;
+  string key = 2;
+}
+
+message DeleteKeyResponse {}
+
+message GetKeysRequest {
+  string keyset_id = 1;
+}
+
+message GetKeysResponse {
+  repeated Key keys = 1;
+}
+
+service KeysAPI {
+  rpc CreateKey(CreateKeyRequest) returns (CreateKeyResponse) {}
+  rpc UpdateKey(UpdateKeyRequest) returns (UpdateKeyResponse) {}
+  rpc DeleteKey(DeleteKeyRequest) returns (DeleteKeyResponse) {}
+  rpc GetKeys(GetKeysRequest) returns (GetKeysResponse) {}
+}
