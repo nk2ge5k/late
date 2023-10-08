@@ -1,7 +1,7 @@
 import pytest
 from google.protobuf import json_format
 
-from api.proto.v1 import admin_grpc, keyset_grpc
+from api.proto.v1 import admin_grpc, keys_grpc, keyset_grpc
 
 pytest_plugins = ["tests.plugins.plugin"]
 
@@ -29,3 +29,8 @@ def _keyset_api_fixture(grpc_channel):
 @pytest.fixture(name="authorization")
 def _authrization_fixture():
     return {"authorization": "bearer testsuite-token"}
+
+
+@pytest.fixture(name="keys_api")
+def _keys_api_fixture(grpc_channel):
+    return keys_grpc.KeysAPIStub(grpc_channel)
