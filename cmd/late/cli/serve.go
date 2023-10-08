@@ -144,6 +144,7 @@ func runServe(ctx context.Context, _ []string, args serveArgsT) error {
 		v1.RegisterHealthAPIServer(srv, api.HealthService{})
 		v1.RegisterProjectAPIServer(srv, &api.ProjectService{DB: db})
 		v1.RegisterKeysetAPIServer(srv, &api.KeysetService{DB: db})
+		v1.RegisterKeysAPIServer(srv, &api.KeysService{DB: db})
 	}
 
 	g, gctx := errgroup.WithContext(ctx)
