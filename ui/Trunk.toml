@@ -1,0 +1,4 @@
+[[hooks]]
+stage = "pre_build"
+command = "sh"
+command_arguments = ["-c", "bun run tailwindcss -i input.css -o style/index.css"]
