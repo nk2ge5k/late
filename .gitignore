@@ -29,3 +29,8 @@ build/
 *_grpc.py
 *_pb2.py
 *.gen.go
+
+ui/target
+ui/dist
+ui/node_modules
+ui/bun.lockb
